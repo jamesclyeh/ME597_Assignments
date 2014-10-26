@@ -23,60 +23,73 @@ axis = [-4 ,4 ,-4, 4];
 
 input = [5 5 5];
 
-points = [];
-x1 = x0
+predicted_points = [];
+actual_points = [];
+predicted = x0;
+actual = x0;
 for i=1:time * refresh_rate
-    x1 = MoveRobot(x1, l, r, input, refresh_rate);
-    points(:,i) = x1;
+    [predicted, actual] = MoveRobot(predicted, actual, l, r, input, refresh_rate);
+    predicted_points(:,i) = predicted;
+    actual_points(:,i) = actual;
 end
 
 % Plot
 title = ('Motion Model of Distribution Free two-wheeled robot spinning in a circle');
-PlotPoints(x0, points, title, axis, 1);
+PlotPoints(x0, predicted_points, actual_points, title, axis, 1);
 
 %% move in straight line
 
 input = [0 -1 1];
 
-points = [];
-x1 = x0
+predicted_points = [];
+actual_points = [];
+predicted = x0;
+actual = x0;
 for i=1:time * refresh_rate
-    x1 = MoveRobot(x1, l, r, input, refresh_rate);
-    points(:,i) = x1;
+    [predicted, actual] = MoveRobot(predicted, actual, l, r, input, refresh_rate);
+    predicted_points(:,i) = predicted;
+    actual_points(:,i) = actual;
 end
 
 % Plot
 title = 'Motion Model of Distribution Free two-wheeled robot moving in a straight line';
-PlotPoints(x0, points, title, axis, 2);
+PlotPoints(x0, predicted_points, actual_points, title, axis, 2);
 
 %% move in circle
 
 input = [-1.5 2.0 1.0];
 
-points = [];
-x1 = x0
+predicted_points = [];
+actual_points = [];
+predicted = x0;
+actual = x0;
 for i=1:15 * refresh_rate
-    x1 = MoveRobot(x1, l, r, input, refresh_rate);
-    points(:,i) = x1;
+    [predicted, actual] = MoveRobot(predicted, actual, l, r, input, refresh_rate);
+    predicted_points(:,i) = predicted;
+    actual_points(:,i) = actual;
 end
 
 % Plot
 title = 'Motion Model of Distribution Free two-wheeled robot moving in a circle line';
-PlotPoints(x0, points, title, axis, 3);
+PlotPoints(x0, predicted_points, actual_points, title, axis, 3);
 
 %% move in circle with 2m diameter
 
+dynamic_model = [0 1 l; ...
+                 -1*cosd(30) -1*sind(30) l; ...
+                 cosd(30) -1*sind(30) l];
 input = ((1 / r) * dynamic_model * [1 0 1]')';
 
-points = [];
-x1 = x0
+predicted_points = [];
+actual_points = [];
+predicted = x0;
+actual = x0;
 for i=1:time * refresh_rate
-    x1 = MoveRobot(x1, l, r, input, refresh_rate);
-    points(:,i) = x1;
+    [predicted, actual] = MoveRobot(predicted, actual, l, r, input, refresh_rate);
+    predicted_points(:,i) = predicted;
+    actual_points(:,i) = actual;
 end
 
 % Plot
 title = 'Motion Model of Distribution Free two-wheeled robot moving in a circle line';
-PlotPoints(x0, points, title, 'equal', 4);
-
-%% model with additive gaussian disturbance
+PlotPoints(x0, predicted_points, actual_points, title, 'equal', 3);
