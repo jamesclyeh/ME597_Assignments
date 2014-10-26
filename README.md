@@ -1,2 +1,2 @@
-SYDE597_Assignments
+ME597_Assignments
 ===================

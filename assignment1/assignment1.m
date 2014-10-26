@@ -23,40 +23,60 @@ axis = [-4 ,4 ,-4, 4];
 
 input = [5 5 5];
 
-x = MoveRobot(x0, l, r, input, refresh_rate, time);
+points = [];
+x1 = x0
+for i=1:time * refresh_rate
+    x1 = MoveRobot(x1, l, r, input, refresh_rate);
+    points(:,i) = x1;
+end
 
 % Plot
 title = ('Motion Model of Distribution Free two-wheeled robot spinning in a circle');
-PlotPoints(x0, x, title, axis, 1);
+PlotPoints(x0, points, title, axis, 1);
 
 %% move in straight line
 
 input = [0 -1 1];
 
-x = MoveRobot(x0, l, r, input, refresh_rate, time);
+points = [];
+x1 = x0
+for i=1:time * refresh_rate
+    x1 = MoveRobot(x1, l, r, input, refresh_rate);
+    points(:,i) = x1;
+end
 
 % Plot
 title = 'Motion Model of Distribution Free two-wheeled robot moving in a straight line';
-PlotPoints(x0, x, title, axis, 2);
+PlotPoints(x0, points, title, axis, 2);
 
 %% move in circle
 
 input = [-1.5 2.0 1.0];
 
-x = MoveRobot(x0, l, r, input, refresh_rate, 15);
+points = [];
+x1 = x0
+for i=1:15 * refresh_rate
+    x1 = MoveRobot(x1, l, r, input, refresh_rate);
+    points(:,i) = x1;
+end
 
 % Plot
 title = 'Motion Model of Distribution Free two-wheeled robot moving in a circle line';
-PlotPoints(x0, x, title, axis, 3);
+PlotPoints(x0, points, title, axis, 3);
 
 %% move in circle with 2m diameter
 
 input = ((1 / r) * dynamic_model * [1 0 1]')';
 
-x = MoveRobot(x0, l, r, input, refresh_rate, time);
+points = [];
+x1 = x0
+for i=1:time * refresh_rate
+    x1 = MoveRobot(x1, l, r, input, refresh_rate);
+    points(:,i) = x1;
+end
 
 % Plot
 title = 'Motion Model of Distribution Free two-wheeled robot moving in a circle line';
-PlotPoints(x0, x, title, 'equal', 4);
+PlotPoints(x0, points, title, 'equal', 4);
 
 %% model with additive gaussian disturbance
