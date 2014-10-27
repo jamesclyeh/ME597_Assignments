@@ -118,6 +118,7 @@ PlotPoints(x0, predicted_points, actual_points, [], title, 'equal', 5);
 %% Extended Kalman
 
 input = [-1.5 2.0 1.0];
+%input = ((1 / r) * dynamic_model * [1 0 0]')';
 
 dynamic_model = [0 1 l; ...
                  -1*cosd(30) -1*sind(30) l; ...
@@ -143,16 +144,15 @@ for i=1:15 * refresh_rate
     latest_predicted = x1 + [normrnd(0, 0.01); normrnd(0, 0.01); normrnd(0, 0.1*pi()/180); 0 ; 0; 0]';
     
     theta = kalman(3);
-    w1 = -1.5;
-    w2 = -2.0;
-    w3 = -1;
-    Ad = [1 0 0 r*dt * -(2*w1*sin(pi/2 + theta))/(3*(cos(pi/2 + theta)^2 + sin(pi/2 + theta)^2)) r*dt*-(w2*(3*cos(pi/2 + theta) - 3^(1/2)*sin(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2)) r*dt*(w3 *(3*cos(pi/2 + theta) + 3^(1/2)*sin(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2));...
-          0 1 0 r*dt * (2*w1*cos(pi/2 + theta))/(3*(cos(pi/2 + theta)^2 + sin(pi/2 + theta)^2)) r*dt*-(w2*(3*sin(pi/2 + theta) + 3^(1/2)*cos(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2)) r*dt*(w3*(3*sin(pi/2 + theta) - 3^(1/2)*cos(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2));...
-          0 0 1 r*dt*(10*w1)/9 r*dt*(10*w2)/9 r*dt*(10*w3)/9;
+    w1 = input(1);
+    w2 = input(2);
+    w3 = input(3);
+    Ad = [1 0 0 r*dt * -(2*sin(pi/2 + theta))/(3*(cos(pi/2 + theta)^2 + sin(pi/2 + theta)^2)) r*dt*-((3*cos(pi/2 + theta) - 3^(1/2)*sin(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2)) r*dt*((3*cos(pi/2 + theta) + 3^(1/2)*sin(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2));...
+          0 1 0 r*dt * (2*cos(pi/2 + theta))/(3*(cos(pi/2 + theta)^2 + sin(pi/2 + theta)^2)) r*dt*-((3*sin(pi/2 + theta) + 3^(1/2)*cos(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2)) r*dt*((3*sin(pi/2 + theta) - 3^(1/2)*cos(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2));...
+          0 0 1 r*dt*(10)/9 r*dt*(10)/9 r*dt*(10)/9;
           0 0 0 1 0 0;
           0 0 0 0 1 0;
           0 0 0 0 0 1];
-    
     S = eye(6);
     R = [0.01 0 0 0 0 0;...
          0 0.01 0 0 0 0;...
@@ -177,7 +177,6 @@ for i=1:15 * refresh_rate
           %0 0 0 0 0 0];
     
     K = Sp*Ht'*inv(Ht*Sp*Ht'+Q);
-    
     kalman = mup + K * ([MeasurementModel(actual(1), actual(2), actual(3))'] - [MeasurementModel(mup(1), mup(2), mup(3))']);
     kalman = kalman';
     S = (eye(6)-K*Ht)*Sp;
