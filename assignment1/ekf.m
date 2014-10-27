@@ -51,6 +51,17 @@ r = 0.25;
 %% Main loop
 for t=2:length(T)
     %% Simulation
+    
+    if mod(t, 10) == 1
+        Q = [0.01 0 0;% 0 0 0;...
+             0 0.01 0;% 0 0 0;...
+             0 0 10*pi()/180];
+    else
+        Q = [0.5 0 0;% 0 0 0;...
+             0 0.5 0;% 0 0 0;...
+             0 0 10*pi()/180];
+    end
+    
     % Update state
     theta = x(3,t-1);
     Ad = [1 0 0 r*dt * -(2*sin(pi/2 + theta))/(3*(cos(pi/2 + theta)^2 + sin(pi/2 + theta)^2)) r*dt*-((3*cos(pi/2 + theta) - 3^(1/2)*sin(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2)) r*dt*((3*cos(pi/2 + theta) + 3^(1/2)*sin(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2));...
@@ -64,7 +75,7 @@ for t=2:length(T)
     % Take measurement
     % Select a motion disturbance
     % Determine measurement
-    y(:,t) = MeasurementModel(x(1,t), x(2,t), x(3,t));
+    y(:,t) = MeasurementModel(x(1,t), x(2,t), x(3,t), t);
 
 
     %% Extended Kalman Filter Estimation
@@ -93,7 +104,7 @@ for t=2:length(T)
     plot(0,0,'bx', 'MarkerSize', 6, 'LineWidth', 2)
     plot([20 -1],[0 0],'b--')
     plot(x(1,2:t),x(2,2:t), 'ro--')
-    %plot(mu(1), mu(2), 'ko--')
+    plot(mu(1), mu(2), 'ko--')
     plot(mu_S(1,2:t),mu_S(2,2:t), 'bx--')
     mu_pos = [mu(1) mu(2)];
     S_pos = [S(1,1) S(1,2); S(2,1) S(2,2)];
