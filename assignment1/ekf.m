@@ -17,7 +17,7 @@ dt = 0.1;
 x0 = [0 0 0 -1.5 2.0 1]';
 
 % Prior
-mu = [0 0 0 0 0 0]'; % mean (mu)
+mu = [-2 3 -2 -5 5 5]'; % mean (mu)
 S = eye(6);% covariance (Sigma)
 
 % Discrete motion model
@@ -37,7 +37,7 @@ Q = [0.5 0 0;% 0 0 0;...
      0 0 10*pi()/180];
 
 % Simulation Initializations
-Tf = 100;
+Tf = 50;
 T = 0:dt:Tf;
 n = 6;
 x = zeros(n,length(T));
@@ -134,6 +134,6 @@ plot(T, x(5,:), '-b');
 plot(T, mu_S(5,:), '-r');
 figure(7)
 hold all;
-title('w2 velocity')
+title('w3 velocity')
 plot(T, x(6,:), '-b');
 plot(T, mu_S(6,:), '-r');
