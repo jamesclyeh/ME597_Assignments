@@ -1,4 +1,4 @@
-function [predicted, actual] = MoveRobot(prev_predicted, prev_actual, l, r, input, update_rate)
+function [predicted, actual, kalman] = MoveRobot(prev_predicted, prev_actual, l, r, input, update_rate)
 %MOVEROBOT - move robot given input
 
     dynamic_model = [0 1 l; ...
@@ -13,8 +13,12 @@ function [predicted, actual] = MoveRobot(prev_predicted, prev_actual, l, r, inpu
     rotational_matrix_actual = [cos(prev_actual(3)+pi/2) sin(prev_actual(3)+pi/2) 0; ...
                                 -1 * sin(prev_actual(3)+pi/2) cos(prev_actual(3)+pi/2) 0; ...
                                 0 0 1];
-    x1 = prev_actual + dt * r * inv(dynamic_model * rotational_matrix_actual) * input';
-    predicted = prev_predicted + dt * r * inv(dynamic_model * rotational_matrix_predicted) * input';
-    actual = x1 + [normrnd(0, 0.01); normrnd(0, 0.01); normrnd(0, 0.1*pi()/180)]; 
+    actual_velocity = r * inv(dynamic_model * rotational_matrix_actual) * input';
+    x1 = prev_actual + dt *  actual_velocity;
+    latest_predicted = prev_predicted + dt * r * inv(dynamic_model * rotational_matrix_predicted) * input';
+    latest_actual = x1 + [normrnd(0, 0.01); normrnd(0, 0.01); normrnd(0, 0.1*pi()/180)];
+    
+    predicted = latest_predicted;
+    actual = latest_actual;
 end
 
