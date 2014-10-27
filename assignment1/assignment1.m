@@ -34,7 +34,7 @@ for i=1:time * refresh_rate
 end
 
 % Plot
-title = ('Motion Model of Distribution Free two-wheeled robot spinning in a circle');
+title = ('Motion Model of three-wheeled robot spinning in a circle');
 PlotPoints(x0, predicted_points, actual_points, title, axis, 1);
 
 %% move in straight line
@@ -104,7 +104,7 @@ predicted_points = [];
 actual_points = [];
 predicted = x0;
 actual = x0;
-for i=1:80 * refresh_rate
+for i=1:20 * refresh_rate
     input = [(6)/5; (6)/5 - 2*3^(1/2)*i/10; (6)/5 + 2*3^(1/2)*i/10]';
     [predicted, actual] = MoveRobot(predicted, actual, l, r, input, refresh_rate);
     predicted_points(:,i) = predicted;
