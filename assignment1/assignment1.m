@@ -127,11 +127,12 @@ dynamic_model = [0 1 l; ...
 predicted_points = [];
 actual_points = [];
 kalman_points = [];
-predicted = [0 0 0 0 0 0];
-actual = [0 0 0 0 0 0];
+predicted = [0 0 0 input];
+actual = [0 0 0 input];
 kalman = [0 0 0 0 0 0];
 dt = 1 / refresh_rate;
 for i=1:15 * refresh_rate
+    %{
     rotational_matrix_predicted = [cos(predicted(3)+pi/2) sin(predicted(3)+pi/2) 0; ...
                                    -1 * sin(predicted(3)+pi/2) cos(predicted(3)+pi/2) 0; ...
                                    0 0 1];
@@ -139,14 +140,21 @@ for i=1:15 * refresh_rate
                                 -1 * sin(actual(3)+pi/2) cos(actual(3)+pi/2) 0; ...
                                 0 0 1];
     actual_velocity = r * inv(dynamic_model * rotational_matrix_actual) * input';
-    x1 = predicted + [dt *  actual_velocity; 0; 0; 0]';
-    latest_actual = actual + [dt * r * inv(dynamic_model * rotational_matrix_predicted) * input'; 0; 0; 0]';
+    %}
+    theta = actual(3);
+    Ad = [1 0 0 r*dt * -(2*sin(pi/2 + theta))/(3*(cos(pi/2 + theta)^2 + sin(pi/2 + theta)^2)) r*dt*-((3*cos(pi/2 + theta) - 3^(1/2)*sin(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2)) r*dt*((3*cos(pi/2 + theta) + 3^(1/2)*sin(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2));...
+          0 1 0 r*dt * (2*cos(pi/2 + theta))/(3*(cos(pi/2 + theta)^2 + sin(pi/2 + theta)^2)) r*dt*-((3*sin(pi/2 + theta) + 3^(1/2)*cos(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2)) r*dt*((3*sin(pi/2 + theta) - 3^(1/2)*cos(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2));...
+          0 0 1 r*dt*(10)/9 r*dt*(10)/9 r*dt*(10)/9;
+          0 0 0 1 0 0;
+          0 0 0 0 1 0;
+          0 0 0 0 0 1];
+    x1 = Ad * predicted';
+    x1 = x1';
+    latest_actual = Ad * actual';
+    latest_actual = latest_actual';
     latest_predicted = x1 + [normrnd(0, 0.01); normrnd(0, 0.01); normrnd(0, 0.1*pi()/180); 0 ; 0; 0]';
     
     theta = kalman(3);
-    w1 = input(1);
-    w2 = input(2);
-    w3 = input(3);
     Ad = [1 0 0 r*dt * -(2*sin(pi/2 + theta))/(3*(cos(pi/2 + theta)^2 + sin(pi/2 + theta)^2)) r*dt*-((3*cos(pi/2 + theta) - 3^(1/2)*sin(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2)) r*dt*((3*cos(pi/2 + theta) + 3^(1/2)*sin(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2));...
           0 1 0 r*dt * (2*cos(pi/2 + theta))/(3*(cos(pi/2 + theta)^2 + sin(pi/2 + theta)^2)) r*dt*-((3*sin(pi/2 + theta) + 3^(1/2)*cos(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2)) r*dt*((3*sin(pi/2 + theta) - 3^(1/2)*cos(pi/2 + theta)))/(3*(3^(1/2)*cos(pi/2 + theta)^2 + 3^(1/2)*sin(pi/2 + theta)^2));...
           0 0 1 r*dt*(10)/9 r*dt*(10)/9 r*dt*(10)/9;
@@ -177,7 +185,7 @@ for i=1:15 * refresh_rate
           %0 0 0 0 0 0];
     
     K = Sp*Ht'*inv(Ht*Sp*Ht'+Q);
-    kalman = mup + K * ([MeasurementModel(actual(1), actual(2), actual(3))'] - [MeasurementModel(mup(1), mup(2), mup(3))']);
+    kalman = mup + K * (MeasurementModel(latest_actual(1), latest_actual(2), latest_actual(3))' - MeasurementModel(mup(1), mup(2), mup(3))');
     kalman = kalman';
     S = (eye(6)-K*Ht)*Sp;
     
