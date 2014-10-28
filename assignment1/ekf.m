@@ -14,7 +14,10 @@ end
 dt = 0.1;
 
 % Initial State
-x0 = [0 0 0 -1.5 2.0 1]';
+x0 = [0 0 0 -1.5 2.0 1.0]';
+w1 = -1.5;
+w2 = 2.0;
+w3 = 1;
 
 % Prior
 mu = [-2 3 -2 -5 5 5]'; % mean (mu)
@@ -52,6 +55,7 @@ r = 0.25;
 for t=2:length(T)
     %% Simulation
     
+    %{
     if mod(t, 10) == 1
         Q = [0.01 0 0;% 0 0 0;...
              0 0.01 0;% 0 0 0;...
@@ -61,6 +65,7 @@ for t=2:length(T)
              0 0.5 0;% 0 0 0;...
              0 0 10*pi()/180];
     end
+    %}
     
     % Update state
     theta = x(3,t-1);
@@ -70,6 +75,16 @@ for t=2:length(T)
           0 0 0 1 0 0;
           0 0 0 0 1 0;
           0 0 0 0 0 1];
+    
+    %{
+    jacobian = [1 0 0 dt 0 0;...
+                0 1 0 0 dt 0;...
+                0 0 1 0 0 dt;...
+                0 0 (w1*sin(theta))/6 - (w2*sin(theta))/12 - (w3*sin(theta))/12 + (3^(1/2)*cos(theta)*w2)/12 - (3^(1/2)*cos(theta)*w3)/12 1 0 0;...
+                0 0 (cos(theta)*w2)/12 - (cos(theta)*w1)/6 + (cos(theta)*conj(w3))/12 + (3^(1/2)*w2*sin(theta))/12 - (3^(1/2)*w3*sin(theta))/12 0 1 0;...
+                0 0 1 0 0 1];
+    %}
+                
     x(:,t) = Ad*x(:,t-1) + [normrnd(0, 0.01); normrnd(0, 0.01); normrnd(0, 0.1*pi()/180); 0 ; 0; 0];
 
     % Take measurement
@@ -81,6 +96,7 @@ for t=2:length(T)
     %% Extended Kalman Filter Estimation
     % Prediction update
     mup = Ad*mu;
+    %Sp = jacobian*S*jacobian' + R;
     Sp = Ad*S*Ad' + R;
 
     % Linearization
@@ -102,7 +118,6 @@ for t=2:length(T)
     %% Plot results
     figure(1);clf; hold on;
     plot(0,0,'bx', 'MarkerSize', 6, 'LineWidth', 2)
-    plot([20 -1],[0 0],'b--')
     plot(x(1,2:t),x(2,2:t), 'ro--')
     plot(mu(1), mu(2), 'ko--')
     plot(mu_S(1,2:t),mu_S(2,2:t), 'bx--')
